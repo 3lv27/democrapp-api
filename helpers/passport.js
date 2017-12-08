@@ -18,13 +18,17 @@ function config() {
     });
   });
 
-  passport.use(new LocalStrategy((username, password, next) => {
-    User.findOne({ username }, (err, user) => {
+  const passportOptions = {
+    usernameField: 'email'
+  };
+
+  passport.use(new LocalStrategy(passportOptions, (email, password, next) => {
+    User.findOne({ email }, (err, user) => {
       if (err) {
         return next(err);
       }
       if (!user) {
-        return next(null, false, { message: 'Incorrect username' });
+        return next(null, false, { message: 'Incorrect email' });
       }
       if (!bcrypt.compareSync(password, user.password)) {
         return next(null, false, { message: 'Incorrect password' });
