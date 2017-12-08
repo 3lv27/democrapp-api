@@ -1,8 +1,7 @@
 'use strict';
 
 const express = require('express');
-const path = require('path');
-const favicon = require('serve-favicon');
+const cors = require('cors');
 const logger = require('morgan');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
@@ -12,15 +11,15 @@ const passport = require('passport');
 const MongoStore = require('connect-mongo')(session);
 
 const configurePassport = require('./helpers/passport');
-const response = require('../helpers/response');
+const response = require('./helpers/response');
 
-const index = require('./routes/index');
-const users = require('./routes/users');
+const auth = require('./routes/auth');
+const polls = require('./routes/polls');
 
 const app = express();
 
 // database config
-mongoose.Promise = global.Promise;
+mongoose.Promise = Promise;
 mongoose.connect('mongodb://localhost/democrapp', {
   keepAlive: true,
   reconnectTries: Number.MAX_VALUE,
@@ -47,19 +46,21 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 // middlewares
-// app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
+app.use(cors());
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/', index);
-app.use('/users', users);
+// -- routes
 
-// catch 404 and forward to error handler
+app.use('/auth', auth);
+app.use('/polls', polls);
+
+// -- 404 and error handler
+
 app.use(function(req, res) {
-  return response.notFound();
+  return response.notFound(req, res);
 });
 
 // error handler
@@ -69,7 +70,7 @@ app.use(function(err, req, res, next) {
 
   // only send response if the error ocurred before sending the response
   if (!res.headersSent) {
-    return response.unexpectedError();
+    return response.unexpectedError(req, res);
   };
 });
 
