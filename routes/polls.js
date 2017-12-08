@@ -36,10 +36,38 @@ router.post('/', (req, res, next) => {
   if (!req.user) {
     return response.forbidden(req, res);
   }
-  // @todo if (!req.body.foo || !req.body.bar) { return response.unprocessable(req, res); }
+  // @todo if (!req.body.foo ||!req.body.bar) { return response.unprocessable(req, res); }
   const poll = new Poll(req.body);
   poll.owner = req.user._id;
   poll.save((err, poll) => {
+    if (err) {
+      return next(err);
+    }
+    if (!poll) {
+      return response.notFound(req, res);
+    }
+    return response.data(req, res, poll);
+  });
+});
+
+router.post('/:id/votes', (req, res, next) => {
+  if (!req.user) {
+    return response.forbidden(req, res);
+  }
+  // @todo if (!req.body.answer) { return response.unprocessable(req, res); }
+  const filter = {_id: req.params.id};
+  const update = {
+    $push: {
+      votes: {
+        voter: req.user._id,
+        answer: req.body.answer
+      },
+      voters: req.user._id,
+      answers: req.body.answer
+    }
+  };
+
+  Poll.findByIdAndUpdate(filter, update, (err, poll) => {
     if (err) {
       return next(err);
     }
