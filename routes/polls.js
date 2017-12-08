@@ -33,8 +33,12 @@ router.get('/:id', (req, res, next) => {
 });
 
 router.post('/', (req, res, next) => {
+  if (!req.user) {
+    return response.forbidden(req, res);
+  }
   // @todo if (!req.body.foo || !req.body.bar) { return response.unprocessable(req, res); }
   const poll = new Poll(req.body);
+  poll.owner = req.user._id;
   poll.save((err, poll) => {
     if (err) {
       return next(err);
