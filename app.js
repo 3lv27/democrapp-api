@@ -9,6 +9,7 @@ const mongoose = require('mongoose');
 const session = require('express-session');
 const passport = require('passport');
 const MongoStore = require('connect-mongo')(session);
+const dotenv = require('dotenv');
 
 const configurePassport = require('./helpers/passport');
 const response = require('./helpers/response');
@@ -17,6 +18,8 @@ const auth = require('./routes/auth');
 const polls = require('./routes/polls');
 
 const app = express();
+
+dotenv.config();
 
 // database config
 mongoose.Promise = Promise;
@@ -46,7 +49,11 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 // middlewares
-app.use(cors());
+app.use(cors({
+  credentials: true,
+  origin: [process.env.CLIENT_URL]
+  //
+}));
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
