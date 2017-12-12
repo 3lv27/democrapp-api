@@ -23,7 +23,7 @@ dotenv.config();
 
 // database config
 mongoose.Promise = Promise;
-mongoose.connect('mongodb://localhost/democrapp', {
+mongoose.connect(process.env.MONGODB_URI, {
   keepAlive: true,
   reconnectTries: Number.MAX_VALUE,
   useMongoClient: true
