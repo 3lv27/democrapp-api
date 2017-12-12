@@ -32,6 +32,34 @@ router.get('/:id', (req, res, next) => {
   });
 });
 
+router.get('/:id/options', (req, res, next) => {
+  if (!/^[0-9a-fA-F]{24}$/.test(req.params.id)) {
+    return response.notFound(req, res);
+  }
+  Poll.findById(req.params.id, (err, poll) => {
+    if (err) {
+      return next(err);
+    }
+    if (!poll) {
+      return response.notFound(req, res);
+    }
+    console.log(poll.properties);
+    return response.data(req, res, poll.properties);
+  });
+});
+
+router.get('/active/owner', (req, res, next) => {
+  Poll.find({ owner: req.user._id }, (err, polls) => {
+    if (err) {
+      return next(err);
+    }
+    if (!polls) {
+      return response.notFound(req, res);
+    }
+    return response.data(req, res, polls);
+  });
+});
+
 router.post('/', (req, res, next) => {
   if (!req.user) {
     return response.forbidden(req, res);
