@@ -43,8 +43,8 @@ router.get('/:id/options', (req, res, next) => {
     if (!poll) {
       return response.notFound(req, res);
     }
-    console.log(poll.properties);
-    return response.data(req, res, poll.properties);
+    console.log('ereererer', poll);
+    return response.data(req, res, poll.properties.options);
   });
 });
 
