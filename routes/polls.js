@@ -46,7 +46,8 @@ router.post('/', (req, res, next) => {
     if (!poll) {
       return response.notFound(req, res);
     }
-    return response.data(req, res, poll);
+    // return response.data(req, res, poll);
+    res.json({ id: poll._id });
   });
 });
 
